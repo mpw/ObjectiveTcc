@@ -52,6 +52,8 @@
 		1FE155D2236869C1006E49A8 /* x86_64-gen.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE1541B236869C0006E49A8 /* x86_64-gen.c */; };
 		1FE155D4236869C1006E49A8 /* tcc-doc.texi in Resources */ = {isa = PBXBuildFile; fileRef = 1FE1541D236869C0006E49A8 /* tcc-doc.texi */; };
 		1FE155D5236869C1006E49A8 /* tcccoff.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE1541E236869C0006E49A8 /* tcccoff.c */; };
+		1FE155D8236875D4006E49A8 /* TinyCCompiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FE155D6236875D4006E49A8 /* TinyCCompiler.h */; };
+		1FE155D9236875D4006E49A8 /* TinyCCompiler.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FE155D7236875D4006E49A8 /* TinyCCompiler.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -397,6 +399,8 @@
 		1FE1541C236869C0006E49A8 /* tccpe.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tccpe.c; sourceTree = "<group>"; };
 		1FE1541D236869C0006E49A8 /* tcc-doc.texi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "tcc-doc.texi"; sourceTree = "<group>"; };
 		1FE1541E236869C0006E49A8 /* tcccoff.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tcccoff.c; sourceTree = "<group>"; };
+		1FE155D6236875D4006E49A8 /* TinyCCompiler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TinyCCompiler.h; sourceTree = "<group>"; };
+		1FE155D7236875D4006E49A8 /* TinyCCompiler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TinyCCompiler.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -432,6 +436,8 @@
 				1FE15258236869BF006E49A8 /* tinycc */,
 				1FE1525023686918006E49A8 /* ObjectiveTcc.h */,
 				1FE1525123686918006E49A8 /* Info.plist */,
+				1FE155D6236875D4006E49A8 /* TinyCCompiler.h */,
+				1FE155D7236875D4006E49A8 /* TinyCCompiler.m */,
 			);
 			path = ObjectiveTcc;
 			sourceTree = "<group>";
@@ -838,6 +844,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1FE15424236869C0006E49A8 /* i386-tok.h in Headers */,
+				1FE155D8236875D4006E49A8 /* TinyCCompiler.h in Headers */,
 				1FE155CF236869C1006E49A8 /* tcc.h in Headers */,
 				1FE15433236869C0006E49A8 /* tcclib.h in Headers */,
 				1FE1554C236869C1006E49A8 /* i386-asm.h in Headers */,
@@ -947,6 +954,7 @@
 				1FE1542B236869C0006E49A8 /* tccasm.c in Sources */,
 				1FE15425236869C0006E49A8 /* tccgen.c in Sources */,
 				1FE15564236869C1006E49A8 /* dsohandle.c in Sources */,
+				1FE155D9236875D4006E49A8 /* TinyCCompiler.m in Sources */,
 				1FE1543F236869C0006E49A8 /* libtcc.c in Sources */,
 				1FE15550236869C1006E49A8 /* tccrun.c in Sources */,
 				1FE15565236869C1006E49A8 /* va_list.c in Sources */,
