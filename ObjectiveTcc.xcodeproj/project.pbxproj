@@ -54,6 +54,10 @@
 		1FE155D5236869C1006E49A8 /* tcccoff.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE1541E236869C0006E49A8 /* tcccoff.c */; };
 		1FE155D8236875D4006E49A8 /* TinyCCompiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FE155D6236875D4006E49A8 /* TinyCCompiler.h */; };
 		1FE155D9236875D4006E49A8 /* TinyCCompiler.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FE155D7236875D4006E49A8 /* TinyCCompiler.m */; };
+		1FE155DC236893AC006E49A8 /* MPWMachOFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FE155DA236893AC006E49A8 /* MPWMachOFile.h */; };
+		1FE155DD236893AC006E49A8 /* MPWMachOFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FE155DB236893AC006E49A8 /* MPWMachOFile.m */; };
+		1FE155E02368965C006E49A8 /* MPWMachOSegment.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FE155DE2368965C006E49A8 /* MPWMachOSegment.h */; };
+		1FE155E12368965C006E49A8 /* MPWMachOSegment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FE155DF2368965C006E49A8 /* MPWMachOSegment.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -401,6 +405,10 @@
 		1FE1541E236869C0006E49A8 /* tcccoff.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tcccoff.c; sourceTree = "<group>"; };
 		1FE155D6236875D4006E49A8 /* TinyCCompiler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TinyCCompiler.h; sourceTree = "<group>"; };
 		1FE155D7236875D4006E49A8 /* TinyCCompiler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TinyCCompiler.m; sourceTree = "<group>"; };
+		1FE155DA236893AC006E49A8 /* MPWMachOFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPWMachOFile.h; sourceTree = "<group>"; };
+		1FE155DB236893AC006E49A8 /* MPWMachOFile.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPWMachOFile.m; sourceTree = "<group>"; };
+		1FE155DE2368965C006E49A8 /* MPWMachOSegment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPWMachOSegment.h; sourceTree = "<group>"; };
+		1FE155DF2368965C006E49A8 /* MPWMachOSegment.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPWMachOSegment.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -438,6 +446,10 @@
 				1FE1525123686918006E49A8 /* Info.plist */,
 				1FE155D6236875D4006E49A8 /* TinyCCompiler.h */,
 				1FE155D7236875D4006E49A8 /* TinyCCompiler.m */,
+				1FE155DA236893AC006E49A8 /* MPWMachOFile.h */,
+				1FE155DB236893AC006E49A8 /* MPWMachOFile.m */,
+				1FE155DE2368965C006E49A8 /* MPWMachOSegment.h */,
+				1FE155DF2368965C006E49A8 /* MPWMachOSegment.m */,
 			);
 			path = ObjectiveTcc;
 			sourceTree = "<group>";
@@ -849,7 +861,9 @@
 				1FE15433236869C0006E49A8 /* tcclib.h in Headers */,
 				1FE1554C236869C1006E49A8 /* i386-asm.h in Headers */,
 				1FE1525223686918006E49A8 /* ObjectiveTcc.h in Headers */,
+				1FE155E02368965C006E49A8 /* MPWMachOSegment.h in Headers */,
 				1FE15428236869C0006E49A8 /* tcctok.h in Headers */,
+				1FE155DC236893AC006E49A8 /* MPWMachOFile.h in Headers */,
 				1FE155CE236869C1006E49A8 /* coff.h in Headers */,
 				1FE15544236869C1006E49A8 /* stab.h in Headers */,
 				1FE1543E236869C0006E49A8 /* x86_64-asm.h in Headers */,
@@ -947,12 +961,14 @@
 				1FE15549236869C1006E49A8 /* x86_64-link.c in Sources */,
 				1FE15560236869C1006E49A8 /* libtcc1.c in Sources */,
 				1FE155D2236869C1006E49A8 /* x86_64-gen.c in Sources */,
+				1FE155E12368965C006E49A8 /* MPWMachOSegment.m in Sources */,
 				1FE155D5236869C1006E49A8 /* tcccoff.c in Sources */,
 				1FE1542A236869C0006E49A8 /* tccelf.c in Sources */,
 				1FE1554E236869C1006E49A8 /* config.mak in Sources */,
 				1FE15432236869C0006E49A8 /* Makefile in Sources */,
 				1FE1542B236869C0006E49A8 /* tccasm.c in Sources */,
 				1FE15425236869C0006E49A8 /* tccgen.c in Sources */,
+				1FE155DD236893AC006E49A8 /* MPWMachOFile.m in Sources */,
 				1FE15564236869C1006E49A8 /* dsohandle.c in Sources */,
 				1FE155D9236875D4006E49A8 /* TinyCCompiler.m in Sources */,
 				1FE1543F236869C0006E49A8 /* libtcc.c in Sources */,
