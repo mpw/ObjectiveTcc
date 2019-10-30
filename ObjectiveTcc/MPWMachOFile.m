@@ -57,7 +57,7 @@
             {
                 [s printf:@"segment 64 length %d\n",command->cmdsize];
                 NSRange segmentRange=NSMakeRange((void*)command - [self.machofile bytes],command->cmdsize);
-                MPWMachOSegment *segment=[[MPWMachOSegment alloc] initWithSegmentRange:segmentRange fileData:self.machofile];
+                MPWMachOSegment *segment=[[MPWMachOSegment alloc] initWithRange:segmentRange fileData:self.machofile];
                 [segments addObject:segment];
                 break;
             }

@@ -13,8 +13,8 @@
 
 @interface MPWMachOSegment()
 
-@property (nonatomic,assign) NSRange segmentRange;
-@property (nonatomic,strong) NSData *segmentCommandData;
+@property (nonatomic,assign) NSRange partRange;
+@property (nonatomic,strong) NSData *partData;
 @property (nonatomic,strong) NSData *fileData;
 
 @end
@@ -25,16 +25,16 @@
 }
 
 
--initWithSegmentRange:(NSRange)segmentRange fileData:(NSData*)fileData
+-initWithRange:(NSRange)segmentRange fileData:(NSData*)fileData
 {
     self=[super init];
 
     NSAssert(data.length == sizeof(segment_command_64),@"data size equal to a segment command");
 
-    self.segmentRange=segmentRange;
-    self.segmentCommandData=[fileData subdataWithRange:segmentRange];
+    self.partRange=segmentRange;
+    self.partData=[fileData subdataWithRange:segmentRange];
     self.fileData=fileData;
-    segment=[self.segmentCommandData bytes];
+    segment=[self.partData bytes];
     return self;
 }
 
@@ -56,6 +56,11 @@
     return segment->nsects;
 }
 
+-(NSArray*)sections
+{
+    return nil;
+}
+
 -(void)printName:(char*)name on:s
 {
     [s writeString:[self stringWithoutLeadingSpace:name]];
@@ -63,7 +68,7 @@
 
 -(void)writeOnByteStream:(MPWByteStream*)s {
     [s printf:@"segment, command %d name: '%16s' number of sections: %d offset: %llu size: %llu\n",segment->cmd,segment->segname,segment->nsects,segment->fileoff,segment->filesize];
-    struct section_64 *section=(struct section_64*)([[self fileData] bytes] + self.segmentRange.location + sizeof(struct segment_command_64));
+    struct section_64 *section=(struct section_64*)([[self fileData] bytes] + self.partRange.location + sizeof(struct segment_command_64));
     for (int i=0;i<segment->nsects;i++) {
         [s printf:@"section[%d] name: '",i];
         [self printName:section->segname on:s];
@@ -89,19 +94,21 @@
     return [file segments];
 }
 
-+(void)testGetSegmentsForObjectFile
+
++(void)testGetSegmentsAndSectionsForObjectFile
 {
     NSArray *segments = [self segmentsForTestFileName:@"return.o"];
     INTEXPECT( segments.count, 1,@"number of segments");
     MPWMachOSegment *segment=[segments firstObject];
     INTEXPECT( [segment numSections], 3,@"number of sections");
-
+    NSArray *sections = [segment sections];
+//    INTEXPECT( sections.count, 3,@"number of sections returned");
 }
 
 +testSelectors
 {
     return @[
-        @"testGetSegmentsForObjectFile",
+        @"testGetSegmentsAndSectionsForObjectFile",
     ];
 }
 
