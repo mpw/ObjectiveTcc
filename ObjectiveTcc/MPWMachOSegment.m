@@ -9,6 +9,8 @@
 #import "MPWMachOSegment.h"
 #import <mach-o/loader.h>
 
+@import MPWFoundation;
+
 @interface MPWMachOSegment()
 
 @property (nonatomic,assign) NSRange segmentRange;
@@ -36,13 +38,25 @@
     return self;
 }
 
--(NSString*)description{
-    NSMutableString *descr = [NSMutableString stringWithFormat:@"segment, command %d name: '%16s' number of sections: %d offset: %llu size: %llu\n",segment->cmd,segment->segname,segment->nsects,segment->fileoff,segment->filesize];
+-(void)printName:(char*)name on:s
+{
+    for (int i=0;i<16 && isspace(*name);i++,name++) {
+    }
+    [s printf:@"%s",name];
+}
+
+-(void)writeOnByteStream:(MPWByteStream*)s {
+    [s printf:@"segment, command %d name: '%16s' number of sections: %d offset: %llu size: %llu\n",segment->cmd,segment->segname,segment->nsects,segment->fileoff,segment->filesize];
     struct section_64 *section=(struct section_64*)([[self fileData] bytes] + self.segmentRange.location + sizeof(struct segment_command_64));
     for (int i=0;i<segment->nsects;i++) {
-        [descr appendFormat:@"section[%d] name: '%16s/%16s' size %llu\n",i,section->sectname,section->segname,section->size];
+        [s printf:@"section[%d] name: '",i];
+        [self printName:section->segname on:s];
+        [s printf:@"/"];
+        [self printName:section->sectname on:s];
+
+        [s printf:@"' size %llu\n",section->size];
         section++;
     }
-    return descr;
+    [s writeNewline];
 }
 @end

@@ -45,6 +45,7 @@
 		1FE155E62368C731006E49A8 /* class-with-method.o in Resources */ = {isa = PBXBuildFile; fileRef = 1FE155E52368C731006E49A8 /* class-with-method.o */; };
 		1FE155E72368DEE1006E49A8 /* i386-asm.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE1525C236869BF006E49A8 /* i386-asm.c */; };
 		1FE155E823698DC3006E49A8 /* tccelf.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE15264236869BF006E49A8 /* tccelf.c */; };
+		1FE155ED2369B851006E49A8 /* MPWFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FE155EC2369B851006E49A8 /* MPWFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -398,6 +399,7 @@
 		1FE155DF2368965C006E49A8 /* MPWMachOSegment.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPWMachOSegment.m; sourceTree = "<group>"; };
 		1FE155E32368C628006E49A8 /* return.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = return.o; sourceTree = "<group>"; };
 		1FE155E52368C731006E49A8 /* class-with-method.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = "class-with-method.o"; sourceTree = "<group>"; };
+		1FE155EC2369B851006E49A8 /* MPWFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = MPWFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -405,6 +407,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FE155ED2369B851006E49A8 /* MPWFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -416,6 +419,7 @@
 			children = (
 				1FE1524F23686918006E49A8 /* ObjectiveTcc */,
 				1FE1524E23686918006E49A8 /* Products */,
+				1FE155EB2369B851006E49A8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -845,6 +849,14 @@
 				1FE155E52368C731006E49A8 /* class-with-method.o */,
 			);
 			path = TestResources;
+			sourceTree = "<group>";
+		};
+		1FE155EB2369B851006E49A8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1FE155EC2369B851006E49A8 /* MPWFoundation.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
