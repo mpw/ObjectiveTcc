@@ -7,17 +7,10 @@
 //
 
 #import "MPWMachOSegment.h"
+#import "MPWMachOSection.h"
 #import <mach-o/loader.h>
 
 @import MPWFoundation;
-
-@interface MPWMachOSegment()
-
-@property (nonatomic,assign) NSRange partRange;
-@property (nonatomic,strong) NSData *partData;
-@property (nonatomic,strong) NSData *fileData;
-
-@end
 
 
 @implementation MPWMachOSegment {
@@ -27,24 +20,14 @@
 
 -initWithRange:(NSRange)segmentRange fileData:(NSData*)fileData
 {
-    self=[super init];
+    self=[super initWithRange:segmentRange fileData:fileData];
 
     NSAssert(data.length == sizeof(segment_command_64),@"data size equal to a segment command");
 
-    self.partRange=segmentRange;
-    self.partData=[fileData subdataWithRange:segmentRange];
-    self.fileData=fileData;
     segment=[self.partData bytes];
     return self;
 }
 
--(NSString*)stringWithoutLeadingSpace:(const char*)s
-{
-    for (int i=0;i<16 && isspace(*s);i++,s++) {
-    }
-    NSString *string=[NSString stringWithFormat:@"%s",s];
-    return string;
-}
 
 -(NSString*)segmentName
 {
@@ -58,26 +41,25 @@
 
 -(NSArray*)sections
 {
-    return nil;
-}
-
--(void)printName:(char*)name on:s
-{
-    [s writeString:[self stringWithoutLeadingSpace:name]];
+    NSMutableArray *sections=[NSMutableArray array];
+    struct section_64 *sectionPtr=(struct section_64*)([[self fileData] bytes] + self.partRange.location + sizeof(struct segment_command_64));
+    for (int i=0;i<segment->nsects;i++) {
+        NSRange sectionRange=NSMakeRange( (void*)sectionPtr - [self.fileData bytes], sizeof *sectionPtr);
+        MPWMachOSection *section=[[MPWMachOSection alloc] initWithRange:sectionRange fileData:self.fileData];
+        [sections addObject:section];
+        sectionPtr++;
+    }
+    return sections;
 }
 
 -(void)writeOnByteStream:(MPWByteStream*)s {
-    [s printf:@"segment, command %d name: '%16s' number of sections: %d offset: %llu size: %llu\n",segment->cmd,segment->segname,segment->nsects,segment->fileoff,segment->filesize];
-    struct section_64 *section=(struct section_64*)([[self fileData] bytes] + self.partRange.location + sizeof(struct segment_command_64));
-    for (int i=0;i<segment->nsects;i++) {
-        [s printf:@"section[%d] name: '",i];
-        [self printName:section->segname on:s];
-        [s printf:@"/"];
-        [self printName:section->sectname on:s];
-
-        [s printf:@"' size %llu\n",section->size];
-        section++;
+    [s printf:@"segment name: '%s' number of sections: %d offset: %llu size: %llu\n",[[self stringWithoutLeadingSpace: segment->segname] UTF8String],segment->nsects,segment->fileoff,segment->filesize];
+    NSArray *sections=[self sections];
+    for (int i=0;i<sections.count;i++) {
+        [s printf:@"section[%d]: ",i];
+        [s writeObject:sections[i]];
     }
+
     [s writeNewline];
 }
 @end
@@ -102,7 +84,7 @@
     MPWMachOSegment *segment=[segments firstObject];
     INTEXPECT( [segment numSections], 3,@"number of sections");
     NSArray *sections = [segment sections];
-//    INTEXPECT( sections.count, 3,@"number of sections returned");
+    INTEXPECT( sections.count, 3,@"number of sections returned");
 }
 
 +testSelectors
