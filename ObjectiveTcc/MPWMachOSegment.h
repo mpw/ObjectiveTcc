@@ -6,11 +6,11 @@
 //  Copyright © 2019 metaobject. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "MPWMachOComponent.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MPWMachOSegment : NSObject
+@interface MPWMachOSegment : MPWMachOComponent
 -initWithSegmentRange:(NSRange)segmentRange fileData:(NSData*)fileData;
 
 @end

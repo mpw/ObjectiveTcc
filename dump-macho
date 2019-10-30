@@ -1,5 +1,5 @@
 #!/usr/local/bin/stsh
 #-<void>dump:<ref>file
 framework:ObjectiveTcc load
-dumper := MPWMachOFile new.
-dumper dump: file value.
+dumper := MPWMachOFile alloc initWithData: file value.
+dumper dump.

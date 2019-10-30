@@ -38,11 +38,27 @@
     return self;
 }
 
+-(NSString*)stringWithoutLeadingSpace:(const char*)s
+{
+    for (int i=0;i<16 && isspace(*s);i++,s++) {
+    }
+    NSString *string=[NSString stringWithFormat:@"%s",s];
+    return string;
+}
+
+-(NSString*)segmentName
+{
+    return [self stringWithoutLeadingSpace:self->segment->segname];
+}
+
+-(long)numSections
+{
+    return segment->nsects;
+}
+
 -(void)printName:(char*)name on:s
 {
-    for (int i=0;i<16 && isspace(*name);i++,name++) {
-    }
-    [s printf:@"%s",name];
+    [s writeString:[self stringWithoutLeadingSpace:name]];
 }
 
 -(void)writeOnByteStream:(MPWByteStream*)s {
@@ -59,4 +75,34 @@
     }
     [s writeNewline];
 }
+@end
+
+#import "MPWMachOFile.h"
+#import <MPWFoundation/DebugMacros.h>
+
+@implementation MPWMachOSegment(testing)
+
++(NSArray*)segmentsForTestFileName:(NSString*)name
+{
+    NSData *macho=[self frameworkResource:name category:nil];
+    MPWMachOFile *file=[[MPWMachOFile alloc] initWithData:macho];
+    return [file segments];
+}
+
++(void)testGetSegmentsForObjectFile
+{
+    NSArray *segments = [self segmentsForTestFileName:@"return.o"];
+    INTEXPECT( segments.count, 1,@"number of segments");
+    MPWMachOSegment *segment=[segments firstObject];
+    INTEXPECT( [segment numSections], 3,@"number of sections");
+
+}
+
++testSelectors
+{
+    return @[
+        @"testGetSegmentsForObjectFile",
+    ];
+}
+
 @end

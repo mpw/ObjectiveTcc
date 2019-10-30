@@ -12,28 +12,43 @@
 
 @import MPWFoundation;
 
+@interface MPWMachOFile()
+
+@property (nonatomic,strong) NSData *machofile;
+
+@end
+
+
+
 @implementation MPWMachOFile
 
--(void)dump:(NSData*)machofile
+-(instancetype)initWithData:(NSData*)newFile
+{
+    self=[super init];
+    self.machofile=newFile;
+    return self;
+}
+
+-(void)dump
 {
     MPWByteStream *s=[MPWByteStream Stdout];
-    const struct mach_header_64 *header=[machofile bytes];
+    const struct mach_header_64 *header=[self.machofile bytes];
 
     [s printf:@"magic: %x\n",header->magic];
     [s printf:@"is 64 bit with ny endianness: %d\n",header->magic == MH_MAGIC_64];
     [s printf:@"number of load commands: %d\n",header->ncmds];
 
     [s printf:@"segments:\n"];
-    [s writeObject:[self segmentsFor:machofile]];
+    [s writeObject:[self segments]];
 
 }
 
--(NSArray*)segmentsFor:(NSData*)machofile
+-(NSArray*)segments
 {
     MPWByteStream *s=[MPWByteStream Stdout];
-    const struct mach_header_64 *header=[machofile bytes];
+    const struct mach_header_64 *header=[self.machofile bytes];
     int numCommands =header->ncmds;
-    const struct load_command *command=[machofile bytes] + sizeof *header;
+    const struct load_command *command=[self.machofile bytes] + sizeof *header;
     NSMutableArray *segments=[NSMutableArray array];
     for (int i=0;i<numCommands;i++) {
         int cmd = command->cmd;
@@ -41,8 +56,8 @@
             case LC_SEGMENT_64:
             {
                 [s printf:@"segment 64 length %d\n",command->cmdsize];
-                NSRange segmentRange=NSMakeRange((void*)command - [machofile bytes],command->cmdsize);
-                MPWMachOSegment *segment=[[MPWMachOSegment alloc] initWithSegmentRange:segmentRange fileData:machofile];
+                NSRange segmentRange=NSMakeRange((void*)command - [self.machofile bytes],command->cmdsize);
+                MPWMachOSegment *segment=[[MPWMachOSegment alloc] initWithSegmentRange:segmentRange fileData:self.machofile];
                 [segments addObject:segment];
                 break;
             }

@@ -1,8 +1,8 @@
 //
-//  MPWMachOFile.h
+//  MPWMachOSection.h
 //  ObjectiveTcc
 //
-//  Created by Marcel Weiher on 29.10.19.
+//  Created by Marcel Weiher on 30.10.19.
 //  Copyright © 2019 metaobject. All rights reserved.
 //
 
@@ -10,10 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MPWMachOFile : NSObject
-
--(instancetype)initWithData:(NSData*)newFile;
--(NSArray*)segments;
+@interface MPWMachOSection : NSObject
 
 @end
 

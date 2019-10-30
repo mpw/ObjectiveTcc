@@ -46,6 +46,10 @@
 		1FE155E72368DEE1006E49A8 /* i386-asm.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE1525C236869BF006E49A8 /* i386-asm.c */; };
 		1FE155E823698DC3006E49A8 /* tccelf.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE15264236869BF006E49A8 /* tccelf.c */; };
 		1FE155ED2369B851006E49A8 /* MPWFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FE155EC2369B851006E49A8 /* MPWFoundation.framework */; };
+		1FE155F22369DC4A006E49A8 /* MPWMachOSection.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FE155F02369DC4A006E49A8 /* MPWMachOSection.h */; };
+		1FE155F32369DC4A006E49A8 /* MPWMachOSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FE155F12369DC4A006E49A8 /* MPWMachOSection.m */; };
+		1FE155F62369DC65006E49A8 /* MPWMachOComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FE155F42369DC65006E49A8 /* MPWMachOComponent.h */; };
+		1FE155F72369DC65006E49A8 /* MPWMachOComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FE155F52369DC65006E49A8 /* MPWMachOComponent.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -400,6 +404,10 @@
 		1FE155E32368C628006E49A8 /* return.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = return.o; sourceTree = "<group>"; };
 		1FE155E52368C731006E49A8 /* class-with-method.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = "class-with-method.o"; sourceTree = "<group>"; };
 		1FE155EC2369B851006E49A8 /* MPWFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = MPWFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FE155F02369DC4A006E49A8 /* MPWMachOSection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPWMachOSection.h; sourceTree = "<group>"; };
+		1FE155F12369DC4A006E49A8 /* MPWMachOSection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPWMachOSection.m; sourceTree = "<group>"; };
+		1FE155F42369DC65006E49A8 /* MPWMachOComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPWMachOComponent.h; sourceTree = "<group>"; };
+		1FE155F52369DC65006E49A8 /* MPWMachOComponent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPWMachOComponent.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -442,8 +450,12 @@
 				1FE155D7236875D4006E49A8 /* TinyCCompiler.m */,
 				1FE155DA236893AC006E49A8 /* MPWMachOFile.h */,
 				1FE155DB236893AC006E49A8 /* MPWMachOFile.m */,
+				1FE155F42369DC65006E49A8 /* MPWMachOComponent.h */,
+				1FE155F52369DC65006E49A8 /* MPWMachOComponent.m */,
 				1FE155DE2368965C006E49A8 /* MPWMachOSegment.h */,
 				1FE155DF2368965C006E49A8 /* MPWMachOSegment.m */,
+				1FE155F02369DC4A006E49A8 /* MPWMachOSection.h */,
+				1FE155F12369DC4A006E49A8 /* MPWMachOSection.m */,
 			);
 			path = ObjectiveTcc;
 			sourceTree = "<group>";
@@ -866,6 +878,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FE155F22369DC4A006E49A8 /* MPWMachOSection.h in Headers */,
 				1FE15424236869C0006E49A8 /* i386-tok.h in Headers */,
 				1FE155D8236875D4006E49A8 /* TinyCCompiler.h in Headers */,
 				1FE155CF236869C1006E49A8 /* tcc.h in Headers */,
@@ -875,6 +888,7 @@
 				1FE155E02368965C006E49A8 /* MPWMachOSegment.h in Headers */,
 				1FE15428236869C0006E49A8 /* tcctok.h in Headers */,
 				1FE155DC236893AC006E49A8 /* MPWMachOFile.h in Headers */,
+				1FE155F62369DC65006E49A8 /* MPWMachOComponent.h in Headers */,
 				1FE155CE236869C1006E49A8 /* coff.h in Headers */,
 				1FE15544236869C1006E49A8 /* stab.h in Headers */,
 				1FE1543E236869C0006E49A8 /* x86_64-asm.h in Headers */,
@@ -896,6 +910,7 @@
 				1FE1524923686918006E49A8 /* Sources */,
 				1FE1524A23686918006E49A8 /* Frameworks */,
 				1FE1524B23686918006E49A8 /* Resources */,
+				1FE155F82369DDEA006E49A8 /* Test */,
 			);
 			buildRules = (
 			);
@@ -951,6 +966,28 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		1FE155F82369DDEA006E49A8 /* Test */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Test;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "tester=/usr/local/bin/testlogger\nframework=${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\n\nif  [ -f ${tester}  ]  ; then\n    $tester ${framework}\nelse\n    echo \"projectfile:0:1: warning: $tester or  $framework  not found, tests not run\"\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		1FE1524923686918006E49A8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -963,12 +1000,14 @@
 				1FE155E12368965C006E49A8 /* MPWMachOSegment.m in Sources */,
 				1FE155D5236869C1006E49A8 /* tcccoff.c in Sources */,
 				1FE1554E236869C1006E49A8 /* config.mak in Sources */,
+				1FE155F72369DC65006E49A8 /* MPWMachOComponent.m in Sources */,
 				1FE15432236869C0006E49A8 /* Makefile in Sources */,
 				1FE1542B236869C0006E49A8 /* tccasm.c in Sources */,
 				1FE15425236869C0006E49A8 /* tccgen.c in Sources */,
 				1FE155DD236893AC006E49A8 /* MPWMachOFile.m in Sources */,
 				1FE15564236869C1006E49A8 /* dsohandle.c in Sources */,
 				1FE155D9236875D4006E49A8 /* TinyCCompiler.m in Sources */,
+				1FE155F32369DC4A006E49A8 /* MPWMachOSection.m in Sources */,
 				1FE1543F236869C0006E49A8 /* libtcc.c in Sources */,
 				1FE155E823698DC3006E49A8 /* tccelf.c in Sources */,
 				1FE15550236869C1006E49A8 /* tccrun.c in Sources */,
