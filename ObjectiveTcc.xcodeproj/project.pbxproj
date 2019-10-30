@@ -9,11 +9,9 @@
 /* Begin PBXBuildFile section */
 		1FE1525223686918006E49A8 /* ObjectiveTcc.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FE1525023686918006E49A8 /* ObjectiveTcc.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1FE1541F236869C0006E49A8 /* il-opcodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FE15259236869BF006E49A8 /* il-opcodes.h */; };
-		1FE15422236869C0006E49A8 /* i386-asm.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE1525C236869BF006E49A8 /* i386-asm.c */; };
 		1FE15424236869C0006E49A8 /* i386-tok.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FE1525E236869BF006E49A8 /* i386-tok.h */; };
 		1FE15425236869C0006E49A8 /* tccgen.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE1525F236869BF006E49A8 /* tccgen.c */; };
 		1FE15428236869C0006E49A8 /* tcctok.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FE15262236869BF006E49A8 /* tcctok.h */; };
-		1FE1542A236869C0006E49A8 /* tccelf.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE15264236869BF006E49A8 /* tccelf.c */; };
 		1FE1542B236869C0006E49A8 /* tccasm.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE15265236869BF006E49A8 /* tccasm.c */; };
 		1FE1542D236869C0006E49A8 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FE15267236869BF006E49A8 /* config.h */; };
 		1FE15432236869C0006E49A8 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 1FE1526C236869BF006E49A8 /* Makefile */; };
@@ -45,6 +43,8 @@
 		1FE155E12368965C006E49A8 /* MPWMachOSegment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FE155DF2368965C006E49A8 /* MPWMachOSegment.m */; };
 		1FE155E42368C629006E49A8 /* return.o in Resources */ = {isa = PBXBuildFile; fileRef = 1FE155E32368C628006E49A8 /* return.o */; };
 		1FE155E62368C731006E49A8 /* class-with-method.o in Resources */ = {isa = PBXBuildFile; fileRef = 1FE155E52368C731006E49A8 /* class-with-method.o */; };
+		1FE155E72368DEE1006E49A8 /* i386-asm.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE1525C236869BF006E49A8 /* i386-asm.c */; };
+		1FE155E823698DC3006E49A8 /* tccelf.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FE15264236869BF006E49A8 /* tccelf.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -947,9 +947,9 @@
 				1FE15549236869C1006E49A8 /* x86_64-link.c in Sources */,
 				1FE15560236869C1006E49A8 /* libtcc1.c in Sources */,
 				1FE155D2236869C1006E49A8 /* x86_64-gen.c in Sources */,
+				1FE155E72368DEE1006E49A8 /* i386-asm.c in Sources */,
 				1FE155E12368965C006E49A8 /* MPWMachOSegment.m in Sources */,
 				1FE155D5236869C1006E49A8 /* tcccoff.c in Sources */,
-				1FE1542A236869C0006E49A8 /* tccelf.c in Sources */,
 				1FE1554E236869C1006E49A8 /* config.mak in Sources */,
 				1FE15432236869C0006E49A8 /* Makefile in Sources */,
 				1FE1542B236869C0006E49A8 /* tccasm.c in Sources */,
@@ -958,12 +958,12 @@
 				1FE15564236869C1006E49A8 /* dsohandle.c in Sources */,
 				1FE155D9236875D4006E49A8 /* TinyCCompiler.m in Sources */,
 				1FE1543F236869C0006E49A8 /* libtcc.c in Sources */,
+				1FE155E823698DC3006E49A8 /* tccelf.c in Sources */,
 				1FE15550236869C1006E49A8 /* tccrun.c in Sources */,
 				1FE15565236869C1006E49A8 /* va_list.c in Sources */,
 				1FE1555E236869C1006E49A8 /* Makefile in Sources */,
 				1FE15563236869C1006E49A8 /* alloca86_64.S in Sources */,
 				1FE1554B236869C1006E49A8 /* tccpp.c in Sources */,
-				1FE15422236869C0006E49A8 /* i386-asm.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

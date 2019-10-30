@@ -34,8 +34,8 @@
             case LC_SEGMENT_64:
             {
                 printf("segment 64 length %d\n",command->cmdsize);
-                NSData *segmentData=[NSData dataWithBytes:command length:command->cmdsize];
-                MPWMachOSegment *segment=[[MPWMachOSegment alloc] initWithData:segmentData];
+                NSRange segmentRange=NSMakeRange((void*)command - [machofile bytes],command->cmdsize);
+                MPWMachOSegment *segment=[[MPWMachOSegment alloc] initWithSegmentRange:segmentRange fileData:machofile];
                 [segments addObject:segment];
                 break;
             }

@@ -11,7 +11,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MPWMachOSegment : NSObject
--initWithData:(NSData*)data;
+-initWithSegmentRange:(NSRange)segmentRange fileData:(NSData*)fileData;
 
 @end
 
