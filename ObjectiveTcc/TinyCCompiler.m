@@ -112,13 +112,6 @@
     INTEXPECT([tcc run:@"myFun"], 522, @"run result");
 }
 
-static SEL lenSel() {
-    return @selector(length);
-}
-
-static int fourfive() {
-    return 45;
-}
 
 +(void)testCompileAndRunNamedFunWithArg
 {
@@ -139,11 +132,9 @@ static int fourfive() {
 +(void)testCompileAndRunAMessageSendWithBuildinSelector
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
-    [tcc addPointer:fourfive forCSymbol:"fourfive"];
-    [tcc addPointer:lenSel forCSymbol:"lenSel"];
     SEL lensel=@selector(length);
-    [tcc addPointer:&lensel forCSymbol:"lenSel1"];
-    [tcc compile:@"extern void *lenSel(); extern void *lenSel1; extern int objc_msgSend(void*,void*); long sendlen(void *obj) {  return objc_msgSend( obj,lenSel1); }"];
+    [tcc addPointer:&lensel forCSymbol:"lenSel"];
+    [tcc compile:@"extern void *lenSel; extern int objc_msgSend(void*,void*); long sendlen(void *obj) {  return objc_msgSend( obj,lenSel); }"];
     [tcc relocate];
     INTEXPECT([tcc run:@"sendlen" object:@"Hello Cruel World" selector:NULL], 17, @"msg send result");
 }
