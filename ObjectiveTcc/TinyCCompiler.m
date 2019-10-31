@@ -59,29 +59,17 @@
 
 -(long)run:(NSString*)name
 {
-    long (*func)(void);
-    long retval=0;
-    func=tcc_get_symbol(s, [name UTF8String]);
-    if (func) {
-        retval=func();
-    }
-    return retval;
+    return [self run:name arg:0];
 }
 
 
--(long)run:(NSString*)name arg:(int)arg
+-(long)run:(NSString*)name arg:(long)arg
 {
-    long (*func)(int);
-    long retval=0;
-    func=tcc_get_symbol(s, [name UTF8String]);
-    if (func) {
-        retval=func(arg);
-    }
-    return retval;
-}
+    return [self run:name object:(void*)arg selector:NULL];
+ }
 
--(long)run:(NSString*)name object:(id)anObject selector:(SEL)selector {
-    long (*func)(id,SEL);
+-(long)run:(NSString*)name object:(void*)anObject selector:(SEL)selector {
+    long (*func)(void*,SEL);
     long retval=0;
     func=tcc_get_symbol(s, [name UTF8String]);
     if (func) {
@@ -90,15 +78,6 @@
     return retval;
 }
 
--(long)run:(NSString*)name object:(id)anObject {
-    long (*func)(id);
-    long retval=0;
-    func=tcc_get_symbol(s, [name UTF8String]);
-    if (func) {
-        retval=func(anObject);
-    }
-    return retval;
-}
 
 -(long)compileAndRun:(NSString*)programText
 {
@@ -166,7 +145,7 @@ static int fourfive() {
     [tcc addPointer:&lensel forCSymbol:"lenSel1"];
     [tcc compile:@"extern void *lenSel(); extern void *lenSel1; extern int objc_msgSend(void*,void*); long sendlen(void *obj) {  return objc_msgSend( obj,lenSel1); }"];
     [tcc relocate];
-    INTEXPECT([tcc run:@"sendlen" object:@"Hello Cruel World"], 17, @"msg send result");
+    INTEXPECT([tcc run:@"sendlen" object:@"Hello Cruel World" selector:NULL], 17, @"msg send result");
 }
 
 

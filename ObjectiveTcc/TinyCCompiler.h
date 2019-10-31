@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface TinyCCompiler : NSObject
 
--(int)compileAndRun:(NSString*)s;
+-(long)compileAndRun:(NSString*)s;
 
 @end
 
