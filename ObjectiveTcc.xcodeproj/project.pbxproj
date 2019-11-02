@@ -969,7 +969,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		1FE155F82369DDEA006E49A8 /* Test */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 8;
 			files = (
 			);
 			inputFileListPaths = (
@@ -981,7 +981,7 @@
 			);
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
 			shellScript = "tester=/usr/local/bin/testlogger\nframework=${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\n\nif  [ -f ${tester}  ]  ; then\n    $tester ${framework}\nelse\n    echo \"projectfile:0:1: warning: $tester or  $framework  not found, tests not run\"\nfi\n";
 			showEnvVarsInLog = 0;

@@ -1,0 +1,5 @@
+#!/usr/local/bin/stsh
+#-<int>compile
+framework:ObjectiveTcc load
+tcc := TinyCCompiler new.
+tcc compileAndRun:'#include <stdio.h>  int _start() {  
