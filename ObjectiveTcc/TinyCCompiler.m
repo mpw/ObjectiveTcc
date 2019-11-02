@@ -47,6 +47,8 @@
 
 -(void)functionWithName:(char*)name withReturnValue:(long)funRetVal
 {
+    tcc_set_output_type(s,TCC_OUTPUT_MEMORY);
+    s->nostdlib=1;
     Sym theSym={0};
     TokenSym *tokenSym = tok_alloc( name, strlen(name));
     Sym *sym=&theSym;
@@ -57,6 +59,7 @@
     Sym fTypeSym={0};
     fTypeSym.f.func_type=0;
     Sym *fTypeSymRef=&fTypeSym;
+
     tccelf_begin_file(s);
 
 
@@ -165,6 +168,9 @@
     ind = 0; /* for safety */
     nocode_wanted = 0x80000000;
 //    check_vstack();
+    tccelf_end_file(s);
+    NSLog(@"end of compile");
+
 }
 
 -(void)relocate
@@ -196,6 +202,8 @@
     func=tcc_get_symbol(s, [name UTF8String]);
     if (func) {
         retval=func(anObject,selector);
+    } else {
+        [NSException raise:@"notfound" format:@"function with name %@ not found",name];
     }
     return retval;
 }
@@ -264,9 +272,12 @@
 +(void)testCompileFunctionReturningConstantViaAPI
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
-    [tcc functionWithName:"constTestFun" withReturnValue:51];
+    [tcc functionWithName:"constTestFun" withReturnValue:49];
+    NSLog(@"will relocate");
+
     [tcc relocate];
-    INTEXPECT([tcc run:@"constTestFun"], 51, @"constant fun");
+    NSLog(@"did relocate");
+    INTEXPECT([tcc run:@"constTestFun"], 49, @"constant fun");
 }
 
 
