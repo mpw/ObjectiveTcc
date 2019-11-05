@@ -188,9 +188,27 @@ extern int local_scope,section_sym;
 -(void)pushInt:(long)value
 {
     CType type;
-    type.t = VT_INT;
+    type.t = VT_PTR;
     CValue tokc;
     tokc.i=value;
+    vsetc(&type, VT_CONST, &tokc);
+}
+
+-(void)pushObject:(id)value
+{
+    CType type;
+    type.t = VT_PTR;
+    CValue tokc;
+    tokc.i=(long)value;
+    vsetc(&type, VT_CONST, &tokc);
+}
+
+-(void)pushPointer:(void*)value
+{
+    CType type;
+    type.t = VT_PTR;
+    CValue tokc;
+    tokc.i=(long)value;
     vsetc(&type, VT_CONST, &tokc);
 }
 
@@ -211,30 +229,11 @@ extern int local_scope,section_sym;
     gen_op(theOp);
 }
 
--(void)functionWithName:(char*)name withReturnValue:(long)funRetVal
+-(void)call:(int)numArgs
 {
-    Sym theSym={0};
-    [self beginGeneratingCode];
-    [self functionProlog:name symbolStorage:&theSym returnType:VT_INT argTypes:""];
-
-
-    [self pushInt:funRetVal];
-
-
-    [self generateFunctionEpilogue:&theSym];
+    gfunc_call(numArgs);
 }
 
--(void)integerIdFunctionWithName:(char*)name
-{
-    Sym theSym={0};
-    [self beginGeneratingCode];
-    [self functionProlog:name symbolStorage:&theSym returnType:VT_INT argTypes:"i"];
-
-
-    [self pushFunctionArg:0];
-
-    [self generateFunctionEpilogue:&theSym];
-}
 
 typedef void (^voidBlock)(void);
 
@@ -245,16 +244,9 @@ typedef void (^voidBlock)(void);
     [self functionProlog:name symbolStorage:&theSym returnType:tccReturnType argTypes:objcTypeString];
     bodyBlock();
     [self generateFunctionEpilogue:&theSym];
+    [self relocate];
 }
 
--(void)addFunctionWithName:(char*)name constant:(int)aConstant
-{
-    [self functionWithName:name returnType:VT_INT argTypes:"i" body:^{
-        [self pushFunctionArg:0];
-        [self pushInt:aConstant];
-        [self genOp:'+'];
-    }];
-}
 
 
 -(void)relocate
@@ -283,6 +275,18 @@ typedef void (^voidBlock)(void);
 -(long)run:(NSString*)name object:(void*)anObject selector:(SEL)selector {
     long (*func)(void*,SEL);
     long retval=0;
+    func=tcc_get_symbol(s, [name UTF8String]);
+    if (func) {
+        retval=func(anObject,selector);
+    } else {
+        [NSException raise:@"notfound" format:@"function with name %@ not found",name];
+    }
+    return retval;
+}
+
+-(id)objRun:(NSString*)name object:(void*)anObject selector:(SEL)selector {
+    id (*func)(void*,SEL);
+    id retval=nil;
     func=tcc_get_symbol(s, [name UTF8String]);
     if (func) {
         retval=func(anObject,selector);
@@ -343,7 +347,7 @@ typedef void (^voidBlock)(void);
     INTEXPECT([tcc run:@"sendMsg" object:@"Hello World" selector:@selector(length)], 11, @"msg send result");
 }
 
-+(void)testCompileAndRunAMessageSendWithBuildinSelector
++(void)testCompileAndRunAMessageSendWithBuiltinSelector
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
     SEL lensel=@selector(length);
@@ -356,8 +360,9 @@ typedef void (^voidBlock)(void);
 +(void)testCompileFunctionReturningConstantViaAPI
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
-    [tcc functionWithName:"constTestFun" withReturnValue:49];
-    [tcc relocate];
+    [tcc functionWithName:"constTestFun" returnType:VT_INT argTypes:"i" body:^{
+        [tcc pushInt:49];
+    }];
     INTEXPECT([tcc run:@"constTestFun"], 49, @"constant fun");
 }
 
@@ -365,8 +370,9 @@ typedef void (^voidBlock)(void);
 +(void)testCompileFunctionReturningItsArgumentViaAPI
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
-    [tcc integerIdFunctionWithName:"idTestFun" ];
-    [tcc relocate];
+    [tcc functionWithName:"idTestFun" returnType:VT_INT argTypes:"i" body:^{
+        [tcc pushFunctionArg:0];
+    }];
     INTEXPECT([tcc run:@"idTestFun" arg:23], 23, @"function returns its arg");
     INTEXPECT([tcc run:@"idTestFun" arg:22], 22, @"function returns its arg");
 }
@@ -375,12 +381,34 @@ typedef void (^voidBlock)(void);
 +(void)testCompileFunctionAddingConstantToArgumentViaAPI
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
-    [tcc addFunctionWithName:"addFun" constant:10];
-    [tcc relocate];
+    [tcc functionWithName:"addFun" returnType:VT_INT argTypes:"i" body:^{
+        [tcc pushInt:10];
+        [tcc pushFunctionArg:0];
+        [tcc genOp:'+'];
+    }];
     INTEXPECT([tcc run:@"addFun" arg:13], 23, @"function returns its arg");
     INTEXPECT([tcc run:@"addFun" arg:120], 130, @"function returns its arg");
 }
 
++(void)testReturnObject
+{
+    TinyCCompiler* tcc=[TinyCCompiler new];
+    NSString *testObj=@"hi there";
+    [tcc functionWithName:"objReturnFun" returnType:VT_PTR argTypes:"" body:^{
+        [tcc pushObject:testObj];
+    }];
+    IDEXPECT([tcc objRun:@"objReturnFun" object:nil selector:NULL], testObj, @"function returns its arg");
+}
+
++(void)testGeneratePutsCall
+{
+    TinyCCompiler* tcc=[TinyCCompiler new];
+    [tcc functionWithName:"objReturnFun" returnType:VT_PTR argTypes:"" body:^{
+        [tcc pushPointer:puts];
+        [tcc pushPointer:"hello tcc-generated world"];
+        [tcc call:1];
+    }];
+}
 
 +testSelectors
 {
@@ -389,10 +417,12 @@ typedef void (^voidBlock)(void);
         @"testCompileAndRunNamedFun",
         @"testCompileAndRunNamedFunWithArg",
         @"testCompileAndRunAMessageSend",
-        @"testCompileAndRunAMessageSendWithBuildinSelector",
+        @"testCompileAndRunAMessageSendWithBuiltinSelector",
         @"testCompileFunctionReturningConstantViaAPI",
         @"testCompileFunctionReturningItsArgumentViaAPI",
         @"testCompileFunctionAddingConstantToArgumentViaAPI",
+        @"testReturnObject",
+//        @"testGeneratePutsCall",
     ];
 }
 
