@@ -184,6 +184,33 @@ extern int local_scope,section_sym;
     clear_temp_local_var_list();
 }
 
+
+-(void)pushInt:(long)value
+{
+    CType type;
+    type.t = VT_INT;
+    CValue tokc;
+    tokc.i=value;
+    vsetc(&type, VT_CONST, &tokc);
+}
+
+
+-(void)pushFunctionArg:(int)which
+{
+    which++;
+    CType type;
+    type.t = VT_INT;
+    CValue tokc;
+    tokc.i=-8 * which;
+
+    vsetc(&type, VT_LOCAL | VT_LVAL, &tokc);
+}
+
+-(void)genOp:(int)theOp
+{
+    gen_op(theOp);
+}
+
 -(void)functionWithName:(char*)name withReturnValue:(long)funRetVal
 {
     Sym theSym={0};
@@ -191,12 +218,7 @@ extern int local_scope,section_sym;
     [self functionProlog:name symbolStorage:&theSym returnType:VT_INT argTypes:""];
 
 
-    CType type;
-    type.t = VT_INT;
-    CValue tokc;
-    tokc.i=funRetVal;
-    vsetc(&type, VT_CONST, &tokc);
-
+    [self pushInt:funRetVal];
 
 
     [self generateFunctionEpilogue:&theSym];
@@ -209,17 +231,31 @@ extern int local_scope,section_sym;
     [self functionProlog:name symbolStorage:&theSym returnType:VT_INT argTypes:"i"];
 
 
-    CType type;
-    type.t = VT_INT;
-    CValue tokc;
-    tokc.i=-8;
-
-    vsetc(&type, 0x132, &tokc);
-
-
+    [self pushFunctionArg:0];
 
     [self generateFunctionEpilogue:&theSym];
 }
+
+typedef void (^voidBlock)(void);
+
+-(void)functionWithName:(char*)name returnType:(int)tccReturnType argTypes:(char*)objcTypeString body:(voidBlock)bodyBlock
+{
+    Sym theSym={0};
+    [self beginGeneratingCode];
+    [self functionProlog:name symbolStorage:&theSym returnType:tccReturnType argTypes:objcTypeString];
+    bodyBlock();
+    [self generateFunctionEpilogue:&theSym];
+}
+
+-(void)addFunctionWithName:(char*)name constant:(int)aConstant
+{
+    [self functionWithName:name returnType:VT_INT argTypes:"i" body:^{
+        [self pushFunctionArg:0];
+        [self pushInt:aConstant];
+        [self genOp:'+'];
+    }];
+}
+
 
 -(void)relocate
 {
@@ -336,6 +372,16 @@ extern int local_scope,section_sym;
 }
 
 
++(void)testCompileFunctionAddingConstantToArgumentViaAPI
+{
+    TinyCCompiler* tcc=[TinyCCompiler new];
+    [tcc addFunctionWithName:"addFun" constant:10];
+    [tcc relocate];
+    INTEXPECT([tcc run:@"addFun" arg:13], 23, @"function returns its arg");
+    INTEXPECT([tcc run:@"addFun" arg:120], 130, @"function returns its arg");
+}
+
+
 +testSelectors
 {
     return @[
@@ -346,6 +392,7 @@ extern int local_scope,section_sym;
         @"testCompileAndRunAMessageSendWithBuildinSelector",
         @"testCompileFunctionReturningConstantViaAPI",
         @"testCompileFunctionReturningItsArgumentViaAPI",
+        @"testCompileFunctionAddingConstantToArgumentViaAPI",
     ];
 }
 
