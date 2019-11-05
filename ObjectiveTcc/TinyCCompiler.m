@@ -42,120 +42,65 @@
     s->nostdlib=1;
 //    programText = [@"#define __GNUC__ 7\n" stringByAppendingString:programText];
     tcc_add_sysinclude_path( s, "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include");
+//    NSLog(@"will compile: %@",programText);
     tcc_compile_string(s, [programText UTF8String]);
 }
 
--(void)functionWithName:(char*)name withReturnValue:(long)funRetVal
+extern int local_scope,section_sym;
+
+-(void)beginGeneratingCode
 {
     tcc_set_output_type(s,TCC_OUTPUT_MEMORY);
     s->nostdlib=1;
-    Sym theSym={0};
-    TokenSym *tokenSym = tok_alloc( name, strlen(name));
-    Sym *sym=&theSym;
-    AttributeDef *ad=NULL;
-    extern int local_scope,section_sym;
-    theSym.v = tokenSym->tok;
-    TokenSym *typeToken =tok_alloc( "int", 3);
-    Sym fTypeSym={0};
-    fTypeSym.f.func_type=0;
-    Sym *fTypeSymRef=&fTypeSym;
-
     tccelf_begin_file(s);
 
+    cur_text_section = text_section;
+    funcname = "";
+    anon_sym = SYM_FIRST_ANOM;
+    section_sym = 0;
+    const_wanted = 0;
+    nocode_wanted = 0x80000000;
+    local_scope = 0;
 
+    /* define some often used types */
+    int_type.t = VT_INT;
+    char_pointer_type.t = VT_BYTE;
+    mk_pointer(&char_pointer_type);
+    size_type.t = VT_LONG | VT_LLONG | VT_UNSIGNED;
+    //        ptrdiff_type.t = VT_LONG | VT_LLONG;
 
-        cur_text_section = text_section;
-        funcname = "";
-        anon_sym = SYM_FIRST_ANOM;
-        section_sym = 0;
-        const_wanted = 0;
-        nocode_wanted = 0x80000000;
-        local_scope = 0;
-
-        /* define some often used types */
-        int_type.t = VT_INT;
-        char_pointer_type.t = VT_BYTE;
-        mk_pointer(&char_pointer_type);
-    #if PTR_SIZE == 4
-        size_type.t = VT_INT | VT_UNSIGNED;
-        ptrdiff_type.t = VT_INT;
-    #elif LONG_SIZE == 4
-        size_type.t = VT_LLONG | VT_UNSIGNED;
-        ptrdiff_type.t = VT_LLONG;
-    #else
-        size_type.t = VT_LONG | VT_LLONG | VT_UNSIGNED;
-//        ptrdiff_type.t = VT_LONG | VT_LLONG;
-    #endif
-        func_old_type.t = VT_FUNC;
-        func_old_type.ref = sym_push(SYM_FIELD, &int_type, 0, 0);
-        func_old_type.ref->f.func_call = FUNC_CDECL;
-        func_old_type.ref->f.func_type = FUNC_OLD;
-
-//        tcc_debug_start(s);
-
-    #ifdef TCC_TARGET_ARM
-        arm_init(s1);
-    #endif
-
-    #ifdef INC_DEBUG
-        printf("%s: **** new file\n", file->filename);
-    #endif
-    /* Initialize VLA state */
-//    struct scope f = { 0 };
-//    cur_scope = root_scope = &f;
-
+    func_old_type.t = VT_FUNC;
+    func_old_type.ref = sym_push(SYM_FIELD, &int_type, 0, 0);
+    func_old_type.ref->f.func_call = FUNC_CDECL;
+    func_old_type.ref->f.func_type = FUNC_OLD;
     nocode_wanted = 0;
     ind = cur_text_section->data_offset;
     if (YES) {
-    size_t newoff = section_add(cur_text_section, 0,
-                    1 << 4);
-    gen_fill_nops(newoff - ind);
+        size_t newoff = section_add(cur_text_section, 0,
+                                    1 << 4);
+        gen_fill_nops(newoff - ind);
     }
-    /* NOTE: we patch the symbol size later */
-    put_extern_sym(sym, cur_text_section, ind, 0);
+#ifdef TCC_TARGET_ARM
+    arm_init(s1);
+#endif
 
-    if (ad && ad->a.constructor) {
-        add_init_array (tcc_state, sym);
-    }
-    if (ad && ad->a.destructor) {
-        add_fini_array (tcc_state, sym);
-    }
+#ifdef INC_DEBUG
+    printf("%s: **** new file\n", file->filename);
+#endif
+}
 
-    funcname = get_tok_str(sym->v, NULL);
-    func_ind = ind;
-
-    /* put debug symbol */
-    tcc_debug_funcstart(tcc_state, sym);
-    /* push a dummy symbol to enable local sym storage */
-    sym_push2(&local_stack, SYM_FIELD, 0, 0);
-//    local_scope = 1; /* for function parameters */
-    sym->type.ref = fTypeSymRef;
-
-    gfunc_prolog(&sym->type);       // these might be the parameters? (type is the arg-types?)
-
-    //    local_scope = 0;
-    rsym = 0;
-    clear_temp_local_var_list();
-
-    CType type;
-    type.t = VT_INT;
-
-    CValue tokc;
-    tokc.i=funRetVal;
-    vsetc(&type, VT_CONST, &tokc);
-
+-(void)generateFunctionEpilogue:(Sym*)sym
+{
     gv(RC_IRET);
-
-
     gsym(rsym);
     nocode_wanted = 0;
     gfunc_epilog();
     cur_text_section->data_offset = ind;
     /* reset local stack */
     sym_pop(&local_stack, NULL, 0);
-//    local_scope = 0;
+    local_scope = 0;
     label_pop(&global_label_stack, NULL, 0);
-//    sym_pop(&all_cleanups, NULL, 0);
+    //    sym_pop(&all_cleanups, NULL, 0);
     /* patch symbol size */
     elfsym(sym)->st_size = ind - func_ind;
     /* end of function */
@@ -167,10 +112,113 @@
     func_var = 0; /* for safety */
     ind = 0; /* for safety */
     nocode_wanted = 0x80000000;
-//    check_vstack();
+    //    check_vstack();
     tccelf_end_file(s);
-    NSLog(@"end of compile");
+//    NSLog(@"end compile function %s",get_tok_str(sym->v, NULL));
+}
 
+-(void)functionProlog:(char*)name symbolStorage:(Sym*)sym returnType:(int)returnType argTypes:(char*)typeString
+{
+//    NSLog(@"function: '%s'",name);
+    TokenSym *tokenSym = tok_alloc( name, (int)strlen(name));
+//    AttributeDef *ad=NULL;
+    sym->v = tokenSym->tok;
+    sym->type.t = VT_FUNC;
+    Sym fTypeSym={0};
+    fTypeSym.type.t=returnType;
+    fTypeSym.f.func_type=0;         // not a vararg function
+    Sym *fTypeSymRef=&fTypeSym;
+    Sym *cur=fTypeSymRef;
+    for (long i=0,max=strlen(typeString); i<max;i++) {
+        char objcType=typeString[i];
+        switch (objcType) {
+            case 'i':
+            {
+                CType type;
+                type.t=VT_INT;
+                Sym *arg_sym=calloc(1, sizeof *arg_sym);
+                arg_sym->type=type;
+                arg_sym->v = anon_sym++;
+                cur->next = arg_sym;
+                cur=arg_sym;
+            }
+                break;
+            default:
+                [NSException raise:@"invalidtypestring" format:@"unhandled objc type '%c' at position %d of typestring %s",objcType,i,typeString];
+                break;
+        }
+    }
+
+    //        tcc_debug_start(s);
+
+    /* Initialize VLA state */
+    //    struct scope f = { 0 };
+    //    cur_scope = root_scope = &f;
+
+    /* NOTE: we patch the symbol size later */
+
+
+    put_extern_sym(sym, cur_text_section, ind, 0);
+
+//    if (ad && ad->a.constructor) {
+//        add_init_array (tcc_state, sym);
+//    }
+//    if (ad && ad->a.destructor) {
+//        add_fini_array (tcc_state, sym);
+//    }
+
+    funcname = get_tok_str(sym->v, NULL);
+    func_ind = ind;
+
+    /* put debug symbol */
+    tcc_debug_funcstart(tcc_state, sym);
+    /* push a dummy symbol to enable local sym storage */
+    sym_push2(&local_stack, SYM_FIELD, 0, 0);
+    local_scope = 1; /* for function parameters */
+    sym->type.ref = fTypeSymRef;
+
+    gfunc_prolog(&sym->type);       // these might be the parameters? (type is the arg-types?)
+
+    //    local_scope = 0;
+    rsym = 0;
+    clear_temp_local_var_list();
+}
+
+-(void)functionWithName:(char*)name withReturnValue:(long)funRetVal
+{
+    Sym theSym={0};
+    [self beginGeneratingCode];
+    [self functionProlog:name symbolStorage:&theSym returnType:VT_INT argTypes:""];
+
+
+    CType type;
+    type.t = VT_INT;
+    CValue tokc;
+    tokc.i=funRetVal;
+    vsetc(&type, VT_CONST, &tokc);
+
+
+
+    [self generateFunctionEpilogue:&theSym];
+}
+
+-(void)integerIdFunctionWithName:(char*)name
+{
+    Sym theSym={0};
+    [self beginGeneratingCode];
+    [self functionProlog:name symbolStorage:&theSym returnType:VT_INT argTypes:"i"];
+
+
+    CType type;
+    type.t = VT_INT;
+    CValue tokc;
+    tokc.i=-8;
+
+    vsetc(&type, 0x132, &tokc);
+
+
+
+    [self generateFunctionEpilogue:&theSym];
 }
 
 -(void)relocate
@@ -237,7 +285,7 @@
 +(void)testCompileAndRunNamedFun
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
-    [tcc compile:@"int myFun() {  return 522; }"];
+    [tcc compile:@"int myFun(void) {  return 522; }"];
     [tcc relocate];
     INTEXPECT([tcc run:@"myFun"], 522, @"run result");
 }
@@ -246,7 +294,7 @@
 +(void)testCompileAndRunNamedFunWithArg
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
-    [tcc compile:@"int times3(int arg) {  return arg*3; }"];
+    [tcc compile:@"int times3(int arg,int arg2) {  return arg*3; }"];
     [tcc relocate];
     INTEXPECT([tcc run:@"times3" arg:12], 36, @"run result");
 }
@@ -254,7 +302,7 @@
 +(void)testCompileAndRunAMessageSend
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
-    [tcc compile:@"extern int objc_msgSend(void*,void*); int sendMsg(void *obj, void *sel) {  return objc_msgSend( obj, sel); }"];
+    [tcc compile:@"extern int objc_msgSend(void* ,void*); int sendMsg(void *obj, void *sel) {  return objc_msgSend( obj, sel); }"];
     [tcc relocate];
     INTEXPECT([tcc run:@"sendMsg" object:@"Hello World" selector:@selector(length)], 11, @"msg send result");
 }
@@ -264,7 +312,7 @@
     TinyCCompiler* tcc=[TinyCCompiler new];
     SEL lensel=@selector(length);
     [tcc addPointer:&lensel forCSymbol:"lenSel"];
-    [tcc compile:@"extern void *lenSel; extern int objc_msgSend(void*,void*); long sendlen(void *obj) {  return objc_msgSend( obj,lenSel); }"];
+    [tcc compile:@"extern void *lenSel; extern int objc_msgSend(void* obj,void* msg); long sendlen(void *obj) {  return objc_msgSend( obj,lenSel); }"];
     [tcc relocate];
     INTEXPECT([tcc run:@"sendlen" object:@"Hello Cruel World" selector:NULL], 17, @"msg send result");
 }
@@ -273,14 +321,19 @@
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
     [tcc functionWithName:"constTestFun" withReturnValue:49];
-    NSLog(@"will relocate");
-
     [tcc relocate];
-    NSLog(@"did relocate");
     INTEXPECT([tcc run:@"constTestFun"], 49, @"constant fun");
 }
 
 
++(void)testCompileFunctionReturningItsArgumentViaAPI
+{
+    TinyCCompiler* tcc=[TinyCCompiler new];
+    [tcc integerIdFunctionWithName:"idTestFun" ];
+    [tcc relocate];
+    INTEXPECT([tcc run:@"idTestFun" arg:23], 23, @"function returns its arg");
+    INTEXPECT([tcc run:@"idTestFun" arg:22], 22, @"function returns its arg");
+}
 
 
 +testSelectors
@@ -291,7 +344,8 @@
         @"testCompileAndRunNamedFunWithArg",
         @"testCompileAndRunAMessageSend",
         @"testCompileAndRunAMessageSendWithBuildinSelector",
-    @"testCompileFunctionReturningConstantViaAPI",
+        @"testCompileFunctionReturningConstantViaAPI",
+        @"testCompileFunctionReturningItsArgumentViaAPI",
     ];
 }
 
