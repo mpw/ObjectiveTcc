@@ -212,6 +212,20 @@ extern int local_scope,section_sym;
     vsetc(&type, VT_CONST, &tokc);
 }
 
+-(void)pushFunctionPointer:(void*)value
+{
+    CType type;
+    type.t = VT_FUNC;
+    Sym s;
+    s.f.func_type=FUNC_NEW;
+    type.ref = &s;
+    s.type.t=VT_PTR;
+    s.next=NULL;
+    CValue tokc;
+    tokc.i=(long)value;
+    vsetc(&type, VT_CONST, &tokc);
+}
+
 
 -(void)pushFunctionArg:(int)which
 {
@@ -284,6 +298,18 @@ typedef void (^voidBlock)(void);
     return retval;
 }
 
+-(long)run:(NSString*)name sender:(void*)sender object:(void*)anObject selector:(SEL)selector {
+    long (*func)(void*,void*,SEL);
+    long retval=0;
+    func=tcc_get_symbol(s, [name UTF8String]);
+    if (func) {
+        retval=func(sender,anObject,selector);
+    } else {
+        [NSException raise:@"notfound" format:@"function with name %@ not found",name];
+    }
+    return retval;
+}
+
 -(id)objRun:(NSString*)name object:(void*)anObject selector:(SEL)selector {
     id (*func)(void*,SEL);
     id retval=nil;
@@ -347,6 +373,14 @@ typedef void (^voidBlock)(void);
     INTEXPECT([tcc run:@"sendMsg" object:@"Hello World" selector:@selector(length)], 11, @"msg send result");
 }
 
++(void)testCompileAndRunAMessageSendViaPtr
+{
+    TinyCCompiler* tcc=[TinyCCompiler new];
+    [tcc compile:@"typedef int (*senderFun)(void* ,void*); int sendMsg(senderFun sender,void *obj, void *sel) {  return sender( obj, sel); }"];
+    [tcc relocate];
+    INTEXPECT([tcc run:@"sendMsg" sender:(void*)objc_msgSend object:@"Hello World" selector:@selector(length)], 11, @"msg send result");
+}
+
 +(void)testCompileAndRunAMessageSendWithBuiltinSelector
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
@@ -399,15 +433,22 @@ typedef void (^voidBlock)(void);
     }];
     IDEXPECT([tcc objRun:@"objReturnFun" object:nil selector:NULL], testObj, @"function returns its arg");
 }
+static int flag=0;
+void setFlag() {
+    flag=1;
+}
 
-+(void)testGeneratePutsCall
+
++(void)testGenerateCallWithoutArgs
 {
     TinyCCompiler* tcc=[TinyCCompiler new];
-    [tcc functionWithName:"objReturnFun" returnType:VT_PTR argTypes:"" body:^{
-        [tcc pushPointer:puts];
-        [tcc pushPointer:"hello tcc-generated world"];
-        [tcc call:1];
+    [tcc functionWithName:"setFlagFun" returnType:VT_VOID argTypes:"" body:^{
+        [tcc pushFunctionPointer:setFlag];
+        [tcc call:0];
     }];
+    EXPECTFALSE(flag, @"fun not called yet");
+    [tcc run:@"setFlagFun" object:nil selector:NULL];
+    EXPECTTRUE(flag, @"fun got called");
 }
 
 +testSelectors
@@ -417,12 +458,13 @@ typedef void (^voidBlock)(void);
         @"testCompileAndRunNamedFun",
         @"testCompileAndRunNamedFunWithArg",
         @"testCompileAndRunAMessageSend",
+        @"testCompileAndRunAMessageSendViaPtr",
         @"testCompileAndRunAMessageSendWithBuiltinSelector",
         @"testCompileFunctionReturningConstantViaAPI",
         @"testCompileFunctionReturningItsArgumentViaAPI",
         @"testCompileFunctionAddingConstantToArgumentViaAPI",
         @"testReturnObject",
-//        @"testGeneratePutsCall",
+        @"testGenerateCallWithoutArgs",
     ];
 }
 
