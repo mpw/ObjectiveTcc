@@ -191,8 +191,8 @@ extern int local_scope,section_sym;
 
 -(void)pushInt:(long)value
 {
-    CType type;
-    type.t = VT_PTR;
+    CType type={0};
+    type.t = VT_INT;
     CValue tokc;
     tokc.i=value;
     vsetc(&type, VT_CONST, &tokc);
@@ -200,7 +200,7 @@ extern int local_scope,section_sym;
 
 -(void)pushObject:(id)value
 {
-    CType type;
+    CType type={0};
     type.t = VT_PTR;
     CValue tokc;
     tokc.i=(long)value;
@@ -209,7 +209,7 @@ extern int local_scope,section_sym;
 
 -(void)pushPointer:(void*)value
 {
-    CType type;
+    CType type={0};
     type.t = VT_PTR;
     CValue tokc;
     tokc.i=(long)value;
@@ -218,7 +218,7 @@ extern int local_scope,section_sym;
 
 -(void)pushFunctionPointer:(void*)value
 {
-    CType type;
+    CType type={};
     type.t = VT_FUNC;
     Sym s;
     s.f.func_type=FUNC_NEW;
@@ -234,7 +234,7 @@ extern int local_scope,section_sym;
 -(void)pushFunctionArg:(int)which
 {
     which++;
-    CType type;
+    CType type={};
     type.t = VT_INT;
     CValue tokc;
     tokc.i=-8 * which;
@@ -519,8 +519,8 @@ static int msgFlag=0;
         @"testCompileAndRunAMessageSendWithBuiltinSelector",
         @"testCompileFunctionReturningConstantViaAPI",
         @"testCompileFunctionReturningItsArgumentViaAPI",
-//        @"testCompileFunctionAddingTwoConstants",
-//        @"testCompileFunctionAddingConstantToArgumentViaAPI",
+        @"testCompileFunctionAddingTwoConstants",
+        @"testCompileFunctionAddingConstantToArgumentViaAPI",
         @"testReturnObject",
         @"testGenerateCallWithoutArgs",
         @"testGenerateMessageSend",
