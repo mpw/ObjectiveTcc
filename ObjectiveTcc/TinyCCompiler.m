@@ -19,6 +19,10 @@
 {
     if (nil != (self=[super init])) {
         s=tcc_new();
+        pvtop = vtop = vstack - 1;
+        memset(vtop, 0, sizeof *vtop);
+        s->pack_stack[0] = 0;
+        s->pack_stack_ptr = s->pack_stack;
         [self addPointer:objc_msgSend forCSymbol:"objc_msgSend"];
         [self addPointer:sel_getUid forCSymbol:"sel_getUid"];
 
@@ -67,7 +71,7 @@ extern int local_scope,section_sym;
     char_pointer_type.t = VT_BYTE;
     mk_pointer(&char_pointer_type);
     size_type.t = VT_LONG | VT_LLONG | VT_UNSIGNED;
-    //        ptrdiff_type.t = VT_LONG | VT_LLONG;
+    ptrdiff_type.t = VT_LONG | VT_LLONG;
 
     func_old_type.t = VT_FUNC;
     func_old_type.ref = sym_push(SYM_FIELD, &int_type, 0, 0);
@@ -117,7 +121,7 @@ extern int local_scope,section_sym;
 //    NSLog(@"end compile function %s",get_tok_str(sym->v, NULL));
 }
 
--(void)functionProlog:(char*)name symbolStorage:(Sym*)sym returnType:(int)returnType argTypes:(char*)typeString
+-(void)functionProlog:(const char*)name symbolStorage:(Sym*)sym returnType:(int)returnType argTypes:(char*)typeString
 {
 //    NSLog(@"function: '%s'",name);
     TokenSym *tokenSym = tok_alloc( name, (int)strlen(name));
@@ -138,13 +142,13 @@ extern int local_scope,section_sym;
                 type.t=VT_INT;
                 Sym *arg_sym=calloc(1, sizeof *arg_sym);
                 arg_sym->type=type;
-                arg_sym->v = anon_sym++;
+                arg_sym->v = (int)anon_sym++;
                 cur->next = arg_sym;
                 cur=arg_sym;
             }
                 break;
             default:
-                [NSException raise:@"invalidtypestring" format:@"unhandled objc type '%c' at position %d of typestring %s",objcType,i,typeString];
+                [NSException raise:@"invalidtypestring" format:@"unhandled objc type '%c' at position %ld of typestring %s",objcType,i,typeString];
                 break;
         }
     }
@@ -251,13 +255,18 @@ extern int local_scope,section_sym;
 
 typedef void (^voidBlock)(void);
 
--(void)functionWithName:(char*)name returnType:(int)tccReturnType argTypes:(char*)objcTypeString body:(voidBlock)bodyBlock
+-(void)functionOnlyWithName:(const char*)name returnType:(int)tccReturnType argTypes:(char*)objcTypeString body:(voidBlock)bodyBlock
 {
     Sym theSym={0};
     [self beginGeneratingCode];
     [self functionProlog:name symbolStorage:&theSym returnType:tccReturnType argTypes:objcTypeString];
     bodyBlock();
     [self generateFunctionEpilogue:&theSym];
+}
+
+-(void)functionWithName:(char*)name returnType:(int)tccReturnType argTypes:(char*)objcTypeString body:(voidBlock)bodyBlock
+{
+    [self functionOnlyWithName:name returnType:tccReturnType argTypes:objcTypeString body:bodyBlock];
     [self relocate];
 }
 
@@ -450,21 +459,60 @@ void setFlag() {
     [tcc run:@"setFlagFun" object:nil selector:NULL];
     EXPECTTRUE(flag, @"fun got called");
 }
+static int msgFlag=0;
+
+-(void)setMsgFlag
+{
+    msgFlag=1;
+}
+
+-(void)generateMessageSendTestFunctionWithName:(const char*)name
+{
+    SEL flagMsg=@selector(setMsgFlag);
+    [self functionOnlyWithName:name returnType:VT_INT argTypes:"" body:^{
+        [self pushFunctionPointer:objc_msgSend];
+        [self pushObject:self];
+        [self pushPointer:flagMsg];
+        [self call:2];
+    }];
+}
+
+-(void)generateNumberOfMessageSends:(long)n
+{
+    for (long i=0;i<n;i++) {
+        const char *namebuf=[[NSString stringWithFormat:@"sendFlagMsg%ld",i] UTF8String];
+        [self generateMessageSendTestFunctionWithName:namebuf];
+    }
+    [self relocate];
+}
+
++(void)testGenerateMessageSend
+{
+    TinyCCompiler* tcc=[TinyCCompiler new];
+//    [tcc generateMessageSendTestFunctionWithName:"sendMsg"];
+    [tcc generateNumberOfMessageSends:1];
+    EXPECTFALSE(msgFlag, @"msg not called yet");
+    [tcc run:@"sendFlagMsg0" object:nil selector:NULL];
+    EXPECTTRUE(msgFlag, @"msg got called");
+}
+
+
 
 +testSelectors
 {
     return @[
-        @"testBasicCompileAndRun",
-        @"testCompileAndRunNamedFun",
-        @"testCompileAndRunNamedFunWithArg",
-        @"testCompileAndRunAMessageSend",
-        @"testCompileAndRunAMessageSendViaPtr",
-        @"testCompileAndRunAMessageSendWithBuiltinSelector",
+//        @"testBasicCompileAndRun",
+//        @"testCompileAndRunNamedFun",
+//        @"testCompileAndRunNamedFunWithArg",
+//        @"testCompileAndRunAMessageSend",
+//        @"testCompileAndRunAMessageSendViaPtr",
+//        @"testCompileAndRunAMessageSendWithBuiltinSelector",
         @"testCompileFunctionReturningConstantViaAPI",
         @"testCompileFunctionReturningItsArgumentViaAPI",
-        @"testCompileFunctionAddingConstantToArgumentViaAPI",
-        @"testReturnObject",
-        @"testGenerateCallWithoutArgs",
+//        @"testCompileFunctionAddingConstantToArgumentViaAPI",
+//        @"testReturnObject",
+//        @"testGenerateCallWithoutArgs",
+//        @"testGenerateMessageSend",
     ];
 }
 

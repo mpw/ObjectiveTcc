@@ -1,5 +1,8 @@
 #!/usr/local/bin/stsh
 #-<int>compile
 framework:ObjectiveTcc load
+TinyCCompiler testBasicCompileAndRun.
+
 tcc := TinyCCompiler new.
-tcc compileAndRun:'#include <stdio.h>  int _start() {  
+tcc generateNumberOfMessageSends:300000.
+
