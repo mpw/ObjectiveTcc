@@ -420,6 +420,16 @@ typedef void (^voidBlock)(void);
     INTEXPECT([tcc run:@"idTestFun" arg:22], 22, @"function returns its arg");
 }
 
++(void)testCompileFunctionAddingTwoConstants
+{
+    TinyCCompiler* tcc=[TinyCCompiler new];
+    [tcc functionWithName:"addConstFun" returnType:VT_INT argTypes:"" body:^{
+        [tcc pushInt:3];
+        [tcc pushInt:4];
+        [tcc genOp:'+'];
+    }];
+    INTEXPECT([tcc run:@"addConstFun" arg:0], 7, @"function returns its arg");
+}
 
 +(void)testCompileFunctionAddingConstantToArgumentViaAPI
 {
@@ -501,18 +511,19 @@ static int msgFlag=0;
 +testSelectors
 {
     return @[
-//        @"testBasicCompileAndRun",
-//        @"testCompileAndRunNamedFun",
-//        @"testCompileAndRunNamedFunWithArg",
-//        @"testCompileAndRunAMessageSend",
-//        @"testCompileAndRunAMessageSendViaPtr",
-//        @"testCompileAndRunAMessageSendWithBuiltinSelector",
+        @"testBasicCompileAndRun",
+        @"testCompileAndRunNamedFun",
+        @"testCompileAndRunNamedFunWithArg",
+        @"testCompileAndRunAMessageSend",
+        @"testCompileAndRunAMessageSendViaPtr",
+        @"testCompileAndRunAMessageSendWithBuiltinSelector",
         @"testCompileFunctionReturningConstantViaAPI",
         @"testCompileFunctionReturningItsArgumentViaAPI",
+//        @"testCompileFunctionAddingTwoConstants",
 //        @"testCompileFunctionAddingConstantToArgumentViaAPI",
-//        @"testReturnObject",
-//        @"testGenerateCallWithoutArgs",
-//        @"testGenerateMessageSend",
+        @"testReturnObject",
+        @"testGenerateCallWithoutArgs",
+        @"testGenerateMessageSend",
     ];
 }
 
